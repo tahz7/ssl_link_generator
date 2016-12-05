@@ -74,6 +74,8 @@ def get_httpd():
         except IOError:
             continue
 
+    sys.stdin = open('/dev/tty')
+    
     if not httpd_list:
         httpd_type = raw_input("Neither nginx or apache detected, please "
                                "choose which one you'd like to generate ssl "
@@ -129,7 +131,6 @@ class SSLValidate:
 
     # get cert/key/ca from user
     def get_domain(self):
-        sys.stdin = open('/dev/tty')
         domain_no = int(raw_input('How many domains do y'
                                   'ou wish to install SSL for?: '))
 
