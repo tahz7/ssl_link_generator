@@ -404,6 +404,7 @@ class DisplaySSL:
 
 
 def main():
+    sys.stdin = open('/dev/tty')
     cmd_args = optionparse_args()
 
     if cmd_args.http:
