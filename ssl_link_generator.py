@@ -13,7 +13,6 @@ import itertools
 
 
 def optionparse_args():
-
     help_list = '''\n  Options:
       -h, --help            show this help message and exit
 
@@ -24,9 +23,9 @@ def optionparse_args():
       --ca            Path to where you'd like to store CA
                       Default Path: /etc/pki/tls/certs'
 
-      --http          Choose whether to generate SSL link for either 
+      --http          Choose whether to generate SSL link for either
                       'apache' or 'nginx'
-                      By Default the script automatically detects which 
+                      By Default the script automatically detects which
                       is running'''
 
     parser = OptionParser(
@@ -93,7 +92,7 @@ def get_httpd():
                                    "choose either 'apache' or 'nginx'... \n")
         else:
             break
-    
+
     # plesk isn't supported
     if os.path.exists('/etc/psa'):
         print 'Warning: Plesk is installed on this server.'
@@ -158,19 +157,19 @@ class SSLValidate:
 
         return self.new_domain
 
-    # validates and retrieves common name, expire date, 
+    # validates and retrieves common name, expire date,
     # alternative domains.
     def validate_ssl(self, cert, ca, key, alt_domain=None):
         # get cert information
         cert_pipe_output = subprocess.Popen(
-            ['openssl', 'x509', '-text'], stdin=subprocess.PIPE, 
+            ['openssl', 'x509', '-text'], stdin=subprocess.PIPE,
             stdout=subprocess.PIPE, bufsize=1)
         cert_info = cert_pipe_output.communicate(cert)[0].strip()
 
         for line in iter(cert_info.splitlines()):
             regex_cn = re.search(r'(?=.*Subject)(?=.*CN=(.+?)$)', line)
             regex_expire_date = re.search(r'(?=.*Not After)(?=.*([a-zA-Z]{3}'
-                                          r'\s+[0-9]{1,2} .+?) [a-zA-Z]+$)', 
+                                          r'\s+[0-9]{1,2} .+?) [a-zA-Z]+$)',
                                           line)
             regex_alt_domain = re.search(r'DNS:', line)
             if regex_cn:
@@ -202,15 +201,15 @@ class SSLValidate:
             cert_temp.flush()
             ca_temp.flush()
             # bash command to verify ca bundle
-            ca_verify_cmd = subprocess.Popen(['openssl', 'verify', '-CAfile', 
+            ca_verify_cmd = subprocess.Popen(['openssl', 'verify', '-CAfile',
                                               ca_temp.name, cert_temp.name],
-                                             stdin=subprocess.PIPE, 
+                                             stdin=subprocess.PIPE,
                                              stdout=subprocess.PIPE, bufsize=1)
             ca_verify_cmd.wait()
             ca_verify_cmd_output = ca_verify_cmd.communicate()[0].strip()
 
         regex_ca = re.search(
-            "(Thawte|Symantec|Comodo|DigiCert|Entrust|GeoTrust|GoDaddy)", 
+            "(Thawte|Symantec|Comodo|DigiCert|Entrust|GeoTrust|GoDaddy)",
             ca_verify_cmd_output, re.IGNORECASE)
 
         # if there's no match, it means ca is incompatible with certificate
@@ -227,11 +226,11 @@ class SSLValidate:
             # get the md5 hash from both key/cert
             # same as doing this in bash eg. 'comm | openssl md5'
             md5_hash_output = subprocess.Popen(comm, stdin=subprocess.PIPE,
-                                               stdout=subprocess.PIPE, 
+                                               stdout=subprocess.PIPE,
                                                bufsize=1, shell=True)
             md5_hash_output.wait()
             md5_hash_pipe = md5_hash_output.communicate(ssl)[0].strip()
-            md5_output = subprocess.Popen(['openssl', 'md5'], 
+            md5_output = subprocess.Popen(['openssl', 'md5'],
                                           stdin=subprocess.PIPE,
                                           stdout=subprocess.PIPE, bufsize=1)
             md5_output.wait()
@@ -279,7 +278,7 @@ class DisplaySSL:
                 if exception.errno != errno.EEXIST:
                     print ('There was a problem creating the the '
                            'directory {0}'.format(directory))
-        
+
         cert_dir = os.path.abspath(cert_dir)
         key_dir = os.path.abspath(key_dir)
         ca_dir = os.path.abspath(ca_dir)
@@ -296,9 +295,9 @@ class DisplaySSL:
         ssl_path = []
 
         # create files
-        for text, extension, dir_link in itertools.izip(ssl_texts, ssl_types, 
+        for text, extension, dir_link in itertools.izip(ssl_texts, ssl_types,
                                                         directories):
-            filename = os.path.join(dir_link, '{0}-{1}.{2}'.format(cn, year, 
+            filename = os.path.join(dir_link, '{0}-{1}.{2}'.format(cn, year,
                                                                    extension))
 
             while True:
@@ -327,7 +326,7 @@ class DisplaySSL:
         return ssl_path
 
     def print_domains(self):
-        print '\nWeb Server: {0}\n'.format(col.PURPLE + str(self.httpd_type) 
+        print '\nWeb Server: {0}\n'.format(col.PURPLE + str(self.httpd_type)
                                            + col.ENDC)
         directories = list(self.create_directory())
 
@@ -346,16 +345,16 @@ class DisplaySSL:
                 print '\n'
 
             # print expire, ca and ssl match status
-            expire_status = ('Expires in roughly {0} days'.format(col.YELLOW 
-                             + str(days_diff) + col.ENDC) if days_diff > 0 
+            expire_status = ('Expires in roughly {0} days'.format(col.YELLOW
+                             + str(days_diff) + col.ENDC) if days_diff > 0
                              else col.RED + 'Expired' + col.ENDC)
-            
+
             ca_status = (col.YELLOW + domain_value['ca_auth'] + col.ENDC
-                         if 'ca_auth' in domain_value else 
+                         if 'ca_auth' in domain_value else
                          col.RED + 'CA does not match Certificate' + col.ENDC)
 
             print ('Expiration Date: {0} '
-                   '({1})'.format(col.YELLOW + domain_value['exp_date'] 
+                   '({1})'.format(col.YELLOW + domain_value['exp_date']
                                   + col.ENDC, expire_status))
             print 'Certificate Authority: {0}'.format(ca_status)
 
@@ -364,30 +363,30 @@ class DisplaySSL:
                                                'not match' + col.ENDC)
 
             print
-            
+
             # if all is well, create ssl files and print links.
             if 'ca_auth' in domain_value and 'ssl_match' in domain_value and (
                         days_diff > 0):
-                ssl_texts = [domain_value['cert'], domain_value['key'], 
+                ssl_texts = [domain_value['cert'], domain_value['key'],
                              domain_value['ca']]
                 ssl_types = ['crt', 'key', 'ca']
-                ssl_path = self.create_ssl_file(domain_key, ssl_texts, 
+                ssl_path = self.create_ssl_file(domain_key, ssl_texts,
                                                 ssl_types, directories)
                 print '===== COPY AND PASTE THE FOLLOWING IN VHOST ====\n'
 
                 if self.httpd_type == 'nginx':
                     print col.CYAN + 'ssl_certificate ' + col.ENDC, ssl_path[0]
-                    print (col.CYAN + 'ssl_certificate_key ' + col.ENDC, 
+                    print (col.CYAN + 'ssl_certificate_key ' + col.ENDC,
                            ssl_path[1])
                 else:
                     # apache
                     print (col.CYAN + 'SSLEngine' + col.ENDC, col.RED + 'On'
                            + col.ENDC)
-                    print (col.CYAN + 'SSLCertificateFile ' + col.ENDC, 
+                    print (col.CYAN + 'SSLCertificateFile ' + col.ENDC,
                            ssl_path[0])
-                    print (col.CYAN + 'SSLCertificateKeyFile ' + col.ENDC, 
+                    print (col.CYAN + 'SSLCertificateKeyFile ' + col.ENDC,
                            ssl_path[1])
-                    print (col.CYAN + 'SSLCACertificateFile' + col.ENDC, 
+                    print (col.CYAN + 'SSLCACertificateFile' + col.ENDC,
                            ssl_path[2])
 
                 print '\n\n'
@@ -404,7 +403,6 @@ class DisplaySSL:
 
 
 def main():
-    sys.stdin = open('/dev/tty')
     cmd_args = optionparse_args()
 
     if cmd_args.http:
