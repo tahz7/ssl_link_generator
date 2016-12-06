@@ -73,8 +73,6 @@ def get_httpd():
         except IOError:
             continue
 
-    sys.stdin = open('/dev/tty')
-
     if not httpd_list:
         httpd_type = raw_input("Neither nginx or apache detected, please "
                                "choose which one you'd like to generate ssl "
@@ -401,6 +399,7 @@ class DisplaySSL:
 
 
 def main():
+    sys.stdin = open('/dev/tty')
     cmd_args = optionparse_args()
 
     if cmd_args.http:
