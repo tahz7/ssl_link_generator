@@ -74,7 +74,7 @@ def get_httpd():
             continue
 
     sys.stdin = open('/dev/tty')
-    
+
     if not httpd_list:
         httpd_type = raw_input("Neither nginx or apache detected, please "
                                "choose which one you'd like to generate ssl "
@@ -228,12 +228,10 @@ class SSLValidate:
             md5_hash_output = subprocess.Popen(comm, stdin=subprocess.PIPE,
                                                stdout=subprocess.PIPE,
                                                bufsize=1, shell=True)
-            md5_hash_output.wait()
             md5_hash_pipe = md5_hash_output.communicate(ssl)[0].strip()
             md5_output = subprocess.Popen(['openssl', 'md5'],
                                           stdin=subprocess.PIPE,
                                           stdout=subprocess.PIPE, bufsize=1)
-            md5_output.wait()
             md5_pipe = md5_output.communicate(md5_hash_pipe)[0].strip()
             match.add(md5_pipe)
 
@@ -360,7 +358,7 @@ class DisplaySSL:
 
             if 'ssl_match' not in domain_value:
                 print 'SSL Status: {0}'.format(col.RED + 'Cert and Key does '
-                                               'not match' + col.ENDC)
+                                                         'not match' + col.ENDC)
 
             print
 
@@ -410,9 +408,11 @@ def main():
     else:
         httpd_type = get_httpd()
 
+    # validate cert/key/ca and get domain info
     new_ssl = SSLValidate()
     domain = new_ssl.get_domain()
 
+    # print ssl links
     DisplaySSL(domain, httpd_type, cmd_args).print_domains()
 
     sys.stdout.close()
