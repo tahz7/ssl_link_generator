@@ -15,14 +15,12 @@ import itertools
 def optionparse_args():
     help_list = '''\n  Options:
       -h, --help            show this help message and exit
-
       --cert          Path to where you'd like to store certificate
                       Default Path: /etc/pki/tls/certs
       --key           Path to where you'd like to store key
                       Default Path: /etc/pki/tls/private
       --ca            Path to where you'd like to store CA
                       Default Path: /etc/pki/tls/certs'
-
       --http          Choose whether to generate SSL link for either
                       'apache' or 'nginx'
                       By Default the script automatically detects which
@@ -371,20 +369,23 @@ class DisplaySSL:
                 print '===== COPY AND PASTE THE FOLLOWING IN VHOST ====\n'
 
                 if self.httpd_type == 'nginx':
-                    print col.CYAN + 'ssl_certificate ' + col.ENDC, ssl_path[0]
-                    print (col.CYAN + 'ssl_certificate_key ' + col.ENDC,
-                           ssl_path[1])
+                    print '{0} {1}\n{2} {3}'.format(col.CYAN + 
+                                                    'ssl_certificate' + 
+                                                    col.ENDC, ssl_path[0], 
+                                                    col.CYAN + 
+                                                    'ssl_certificate_key' 
+                                                    + col.ENDC, ssl_path[1])
                 else:
                     # apache
-                    print (col.CYAN + 'SSLEngine' + col.ENDC, col.RED + 'On'
-                           + col.ENDC)
-                    print (col.CYAN + 'SSLCertificateFile ' + col.ENDC,
-                           ssl_path[0])
-                    print (col.CYAN + 'SSLCertificateKeyFile ' + col.ENDC,
-                           ssl_path[1])
-                    print (col.CYAN + 'SSLCACertificateFile' + col.ENDC,
-                           ssl_path[2])
-
+                    print ('{0} {1}\n{2} {3}\n{4} {5}\n{6} '
+                           '{7}').format(col.CYAN + 'SSLEngine' + col.ENDC, 
+                                         col.RED + 'On' + col.ENDC,
+                                         col.CYAN + 'SSLCertificateFile ' + 
+                                         col.ENDC, ssl_path[0], col.CYAN + 
+                                         'SSLCertificateKeyFile ' + col.ENDC, 
+                                         ssl_path[1], col.CYAN +
+                                         'SSLCACertificateFile' + col.ENDC, 
+                                         ssl_path[2])
                 print '\n\n'
 
     def get_day_diff(self, date):
