@@ -96,7 +96,7 @@ def get_httpd():
     return httpd_type
 
 
-class col(Object):
+class col(object):
     BLUE = '\033[94m'
     RED = '\033[31m'
     GREEN = '\033[92m'
@@ -112,7 +112,7 @@ class col(Object):
     ENDC = '\033[0m'
 
 
-class SSLValidate(Object):
+class SSLValidate(object):
 
     def __init__(self):
         self.new_domain = defaultdict(self.domain_record)
@@ -247,7 +247,7 @@ class SSLValidate(Object):
         return ssl_input.strip()
 
 
-class DisplaySSL(Object):
+class DisplaySSL(object):
 
     def __init__(self, domain, httpd_type, cmd_args):
         self.domain = domain
