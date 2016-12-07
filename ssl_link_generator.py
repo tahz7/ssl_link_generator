@@ -113,6 +113,7 @@ class col:
 
 
 class SSLValidate:
+
     def __init__(self):
         self.new_domain = defaultdict(self.domain_record)
 
@@ -247,6 +248,7 @@ class SSLValidate:
 
 
 class DisplaySSL:
+
     def __init__(self, domain, httpd_type, cmd_args):
         self.domain = domain
         self.httpd_type = httpd_type
@@ -313,15 +315,15 @@ class DisplaySSL:
                 temp_file.write(text + '\n')
             # for private key, ensure permissions are 600
             if extension == 'key':
-                os.chmod(filename, 0600)
+                os.chmod(filename, 0o600)
 
             ssl_path.append(filename)
 
         return ssl_path
 
     def print_domains(self):
-        print '\nWeb Server: {0}\n'.format(col.PURPLE + str(self.httpd_type)
-                                           + col.ENDC)
+        print '\nWeb Server: {0}\n'.format(col.PURPLE + str(self.httpd_type) +
+                                           col.ENDC)
         directories = list(self.create_directory())
 
         for domain_key, domain_value in self.domain.iteritems():
@@ -339,28 +341,32 @@ class DisplaySSL:
                 print '\n'
 
             # print expire, ca and ssl match status
-            expire_status = ('Expires in roughly {0} days'.format(col.YELLOW
-                             + str(days_diff) + col.ENDC) if days_diff > 0
-                             else col.RED + 'Expired' + col.ENDC)
+            expire_status = (
+                'Expires in roughly {0} days'.format(
+                    col.YELLOW +
+                    str(days_diff) +
+                    col.ENDC) if days_diff > 0 else col.RED +
+                'Expired' +
+                col.ENDC)
 
             ca_status = (col.YELLOW + domain_value['ca_auth'] + col.ENDC
                          if 'ca_auth' in domain_value else
                          col.RED + 'CA does not match Certificate' + col.ENDC)
 
             print ('Expiration Date: {0} '
-                   '({1})'.format(col.YELLOW + domain_value['exp_date']
-                                  + col.ENDC, expire_status))
+                   '({1})'.format(col.YELLOW + domain_value['exp_date'] +
+                                  col.ENDC, expire_status))
             print 'Certificate Authority: {0}'.format(ca_status)
 
             if 'ssl_match' not in domain_value:
                 print 'SSL Status: {0}'.format(col.RED + 'Cert and Key does '
-                                                         'not match' + col.ENDC)
+                                               'not match' + col.ENDC)
 
             print
 
             # if all is well, create ssl files and print links.
             if 'ca_auth' in domain_value and 'ssl_match' in domain_value and (
-                        days_diff > 0):
+                    days_diff > 0):
                 ssl_texts = [domain_value['cert'], domain_value['key'],
                              domain_value['ca']]
                 ssl_types = ['crt', 'key', 'ca']
@@ -369,24 +375,24 @@ class DisplaySSL:
                 print '===== COPY AND PASTE THE FOLLOWING IN VHOST ====\n'
 
                 if self.httpd_type == 'nginx':
-                    print '{0} {1}\n{2} {3}'.format(col.CYAN + 
-                                                    'ssl_certificate' + 
-                                                    col.ENDC, ssl_path[0], 
-                                                    col.CYAN + 
-                                                    'ssl_certificate_key' 
-                                                    + col.ENDC, ssl_path[1])
+                    print '{0} {1}\n{2} {3}'.format(col.CYAN +
+                                                    'ssl_certificate' +
+                                                    col.ENDC, ssl_path[0],
+                                                    col.CYAN +
+                                                    'ssl_certificate_key' +
+                                                    col.ENDC, ssl_path[1])
                 else:
                     # apache
                     print ('{0} {1}\n{2} {3}\n{4} {5}\n{6} '
-                           '{7}').format(col.CYAN + 'SSLEngine' + col.ENDC, 
+                           '{7}').format(col.CYAN + 'SSLEngine' + col.ENDC,
                                          col.RED + 'On' + col.ENDC,
-                                         col.CYAN + 'SSLCertificateFile ' + 
-                                         col.ENDC, ssl_path[0], col.CYAN + 
-                                         'SSLCertificateKeyFile ' + col.ENDC, 
+                                         col.CYAN + 'SSLCertificateFile ' +
+                                         col.ENDC, ssl_path[0], col.CYAN +
+                                         'SSLCertificateKeyFile ' + col.ENDC,
                                          ssl_path[1], col.CYAN +
-                                         'SSLCACertificateFile' + col.ENDC, 
+                                         'SSLCACertificateFile' + col.ENDC,
                                          ssl_path[2])
-                print '\n'
+                print '\n\n'
 
     def get_day_diff(self, date):
         # get date difference for certificate expiration
