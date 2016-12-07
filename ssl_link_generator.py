@@ -392,7 +392,7 @@ class DisplaySSL(object):
                                          ssl_path[1], col.CYAN +
                                          'SSLCACertificateFile' + col.ENDC,
                                          ssl_path[2])
-                print '\n\n'
+                print '\n'
 
     def get_day_diff(self, date):
         # get date difference for certificate expiration
